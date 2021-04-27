@@ -28,11 +28,24 @@ int main(int argc, char** argv)
     unsigned offset = get_offset(buf);
     std::cout << "Offset: " << offset << "\n";
 
+    std::cout << "Header information HEX: ";
     print_hex(buf, (int) offset, (int) offset + 4);
+
+    std::cout << "ID3 tag information BITS: ";
     print_bits(buf, 0, 10);
 
-    mp3 decoder(UTILS_H::slicing(buf, offset, offset + 4));
-    decoder.print_header();
+    std::cout << "Side information HEX:\n";
+    print_hex(buf, (int) offset + 4, (int) offset + 4 + 32 + 4);
+
+    std::cout << "Side information HEX:\n";
+    print_bits(buf, (int) offset + 4, (int) offset + 4 + 32);
+
+    mp3 decoder(buf, offset);
+    mp3 next_frame(buf, decoder.get_frame_start() + decoder.get_frame_size());
+    mp3 next_next_frame(buf, next_frame.get_frame_start() + next_frame.get_frame_size());
+    decoder.print_frame();
+    next_frame.print_frame();
+    next_next_frame.print_frame();
 }
 
 std::vector<uint8_t> read_mp3_file(const char* file_dir) {
@@ -66,30 +79,4 @@ unsigned get_offset(std::vector<uint8_t> buf) {
     }
 
     return 10 + (int) (buf[6] << 21 | buf[7] << 14 | buf[8] << 7 | buf[9]);
-}
-
-
-void print_hex(const std::vector<uint8_t> bytes, int from, int to) {
-    constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};                     
-
-    // std::string s(bytes.size() * 2, ' ');
-    // for (int i = 0; i < (int) bytes.size(); ++i) {
-    //     s[2 * i] = hexmap[(bytes[i] & 0xF0) >> 4];
-    //     s[2 * i + 1] = hexmap[bytes[i] & 0x0F];
-    // }
-    int newline = 25;
-    for (int i = from; i < to; ++i) {
-        if (i % newline == 0) std::cout << "\n";
-
-        std::cout << hexmap[(bytes[i] & 0xF0) >> 4] << hexmap[bytes[i] & 0x0F] << " ";
-    }
-    std::cout << "\n";
-}
-
-void print_bits(const std::vector<uint8_t> bytes, int from, int to) {
-    for (int i = from; i < to; ++i) {
-        std::cout << std::bitset<8>(bytes[i]) << " ";
-    }
-    std::cout << "\n";
 }
