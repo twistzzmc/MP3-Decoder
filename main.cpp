@@ -26,26 +26,14 @@ int main(int argc, char** argv)
     std::vector<uint8_t> buf = read_mp3_file(argv[1]);
 
     unsigned offset = get_offset(buf);
-    std::cout << "Offset: " << offset << "\n";
-
-    std::cout << "Header information HEX: ";
-    print_hex(buf, (int) offset, (int) offset + 4);
-
-    std::cout << "ID3 tag information BITS: ";
-    print_bits(buf, 0, 10);
-
-    std::cout << "Side information HEX:\n";
-    print_hex(buf, (int) offset + 4, (int) offset + 4 + 32 + 4);
-
-    std::cout << "Side information HEX:\n";
-    print_bits(buf, (int) offset + 4, (int) offset + 4 + 32);
 
     mp3 decoder(buf, offset);
     mp3 next_frame(buf, decoder.get_frame_start() + decoder.get_frame_size());
-    mp3 next_next_frame(buf, next_frame.get_frame_start() + next_frame.get_frame_size());
-    decoder.print_frame();
+    // mp3 next_next_frame(buf, next_frame.get_frame_start() + next_frame.get_frame_size());
+    // decoder.print_frame();
     next_frame.print_frame();
-    next_next_frame.print_frame();
+    next_frame.print_scalefactors();
+    // next_next_frame.print_frame();
 }
 
 std::vector<uint8_t> read_mp3_file(const char* file_dir) {

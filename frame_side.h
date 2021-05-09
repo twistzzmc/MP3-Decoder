@@ -8,7 +8,7 @@
 
 
 class frame_side {
-    private:
+    public:
         int main_data_begin;
         bool scfsi[2][4];
 
